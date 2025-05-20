@@ -1,1 +1,1 @@
-This is the final project for INFO 463
+* This is the final project for INFO 463
