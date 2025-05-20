@@ -51,7 +51,7 @@ void setup() {
   posList.add(new PVector(width*0.3, height*0.75));
   idx++;
   labels[idx] = "SPACE";
-  posList.add(new PVector(width*0.75, height*0.75));
+  posList.add(new PVector(width*0.5, height*0.75));
   idx++;
   labels[idx] = "DEL";
   posList.add(new PVector(width*0.7, height*0.75));
