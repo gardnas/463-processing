@@ -16,6 +16,7 @@ StringBuilder buffer = new StringBuilder();
 PFont font;
 float keyW, keyH;
 int hoveredIndex = -1;
+int clickedIndex = -1;
 int capsIndex;
 boolean capsOn = false;
 int blinkPeriod = 30;
@@ -96,7 +97,7 @@ void draw() {
       w *= 1.2;
       h *= 1.2;
     }
-    fill(i == hoveredIndex ? color(180, 215, 255) : 255);
+    fill(i == clickedIndex ? color(118, 165, 222) : i == hoveredIndex ? color(180, 215, 255) : 255);
 
     // indicate caps state on CAPS key
     if (i == capsIndex && capsOn) {
@@ -134,6 +135,7 @@ int findNearest(float x, float y) {
 void mousePressed() {
   if (hoveredIndex < 0) return;
   String key = labels[hoveredIndex];
+  clickedIndex = hoveredIndex;
   if (hoveredIndex == capsIndex) {
     capsOn = !capsOn;
   } else if (key.equals("SPACE")) {
@@ -143,4 +145,12 @@ void mousePressed() {
   } else {
     buffer.append(capsOn ? key : key.toLowerCase());
   }
+}
+
+
+void mouseReleased() {
+  clickedIndex = -1;
+  System.out.print(clickedIndex);
+  System.out.print("\n");
+  System.out.print(hoveredIndex);
 }
