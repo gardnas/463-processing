@@ -16,6 +16,7 @@ StringBuilder buffer = new StringBuilder();
 PFont font;
 float keyW, keyH;
 int hoveredIndex = -1;
+int clickedIndex = -1;
 int capsIndex;
 boolean capsOn = false;
 int blinkPeriod = 30;
@@ -77,6 +78,79 @@ void draw() {
   float txtX = 60, txtY = 50;
   text(buffer.toString(), txtX, txtY);
   if ((frameCount / blinkPeriod) % 2 == 0) {
-    float cw = textWidth(buffer.toString());
-    float cx = txtX + cw;
-    line(cx, txtY - 20, cx,
+    float txtWidth = textWidth(buffer.toString());
+    float caretX = txtX + txtWidth;
+    float y1 = txtY - 20;
+    float y2 = txtY + 20;
+    stroke(0);
+    line(caretX, y1, caretX, y2);
+  }
+
+  // draw keys
+  textSize(18);
+  textAlign(CENTER, CENTER);
+  for (int i = 0; i < labels.length; i++) {
+    PVector p = positions[i];
+    float w = keyW * 0.9;
+    float h = keyH * 1.2;
+    if (i == hoveredIndex) {
+      w *= 1.2;
+      h *= 1.2;
+    }
+    fill(i == clickedIndex ? color(118, 165, 222) : i == hoveredIndex ? color(180, 215, 255) : 255);
+
+    // indicate caps state on CAPS key
+    if (i == capsIndex && capsOn) {
+      stroke(0, 100, 200);
+      strokeWeight(3);
+    } else {
+      stroke(80);
+      strokeWeight(1);
+    }
+    rect(p.x - w/2, p.y - h/2, w, h, 6);
+
+    // draw label with case
+    fill(0);
+    String toDraw = labels[i];
+    if (toDraw.length() == 1 && !capsOn) {
+      toDraw = toDraw.toLowerCase();
+    }
+    text(toDraw, p.x, p.y);
+  }
+}
+
+int findNearest(float x, float y) {
+  int best = -1;
+  float bd = Float.MAX_VALUE;
+  for (int i = 0; i < positions.length; i++) {
+    float d = dist(x, y, positions[i].x, positions[i].y);
+    if (d < bd) {
+      bd = d;
+      best = i;
+    }
+  }
+  return best;
+}
+
+void mousePressed() {
+  if (hoveredIndex < 0) return;
+  String key = labels[hoveredIndex];
+  clickedIndex = hoveredIndex;
+  if (hoveredIndex == capsIndex) {
+    capsOn = !capsOn;
+  } else if (key.equals("SPACE")) {
+    buffer.append(' ');
+  } else if (key.equals("DEL")) {
+    if (buffer.length() > 0) buffer.deleteCharAt(buffer.length()-1);
+  } else {
+    buffer.append(capsOn ? key : key.toLowerCase());
+  }
+}
+
+
+void mouseReleased() {
+  clickedIndex = -1;
+  System.out.print(clickedIndex);
+  System.out.print("\n");
+  System.out.print(hoveredIndex);
+}
