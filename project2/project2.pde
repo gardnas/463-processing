@@ -5,7 +5,7 @@ String[][] layout = {
 };
 
 int rows = layout.length;
-int extraKeys = 3;
+int extraKeys = 3; // CAPS, SPACE, DEL
 
 ArrayList<String> labelList;
 PVector[] positions;
@@ -19,6 +19,8 @@ int clickedIndex = -1;
 int capsIndex;
 boolean capsOn = false;
 int blinkPeriod = 30;
+float hoverScale = 1.12;
+float clickScale = 1.0;
 
 void setup() {
   size(1000, 600);
@@ -37,18 +39,18 @@ void setup() {
   ArrayList<PVector> posList = new ArrayList<PVector>();
   labelList = new ArrayList<String>();
 
-  // flatten layout with lowered rows to clear text box
+  // flatten layout
   for (int r = 0; r < rows; r++) {
     int cols = layout[r].length;
     float startX = (width - cols * keyW) / 2 + keyW/2;
-    float y = height * (0.3 + r * 0.15);  // moved down from 0.2 to 0.3
+    float y = height * (0.3 + r * 0.15);
     for (int c = 0; c < cols; c++) {
       labelList.add(layout[r][c]);
       posList.add(new PVector(startX + c * keyW, y));
     }
   }
 
-  // extra keys at bottom (unchanged)
+  // extra keys at bottom
   capsIndex = labelList.size();
   labelList.add("CAPS");
   posList.add(new PVector(width * 0.2, height * 0.80));
@@ -72,14 +74,14 @@ void draw() {
   fill(0);
   textSize(18);
   textAlign(LEFT, CENTER);
-  text("The quick fox jumps over the lazy dog", 60, 40);
+  text("the quick brown fox jumps over the lazy dog", 60, 40);
 
   // input text box
   fill(255);
   stroke(0);
   rect(50, 70, width - 100, 60, 8);
 
-  // typing text
+  // typed text and moving caret
   fill(0);
   textSize(24);
   textAlign(LEFT, CENTER);
@@ -92,27 +94,39 @@ void draw() {
     line(cx, txtY - 20, cx, txtY + 20);
   }
 
-  // draw keys with special widths
+  // draw keys with hover and click scaling
   textSize(18);
   textAlign(CENTER, CENTER);
   for (int i = 0; i < labels.length; i++) {
     PVector p = positions[i];
-    float w;
-    float h = keyH * 1.2;
+    // base width
+    float baseW;
     if (labels[i].equals("SPACE")) {
-      w = keyW * 4.5;
+      baseW = keyW * 5;
     } else if (labels[i].equals("CAPS") || labels[i].equals("DEL")) {
-      w = keyW * 1.5;
+      baseW = keyW * 1.5;
     } else {
-      w = keyW * 0.9;
+      baseW = keyW * 0.9;
     }
-    if (i == hoveredIndex) {
-      w *= 1.15;
-      h *= 1.15;
-      fill(180, 215, 255);
-    } else {
-      fill(255);
+    // determine scale: click overrides hover
+    float scale = 1.0;
+    if (i == clickedIndex) {
+      scale = clickScale;
+    } else if (i == hoveredIndex) {
+      scale = hoverScale;
     }
+    float wScaled = baseW * scale;
+    float hScaled = keyH * 1.15 * scale;
+
+    fill(
+      i == clickedIndex
+        ? color(118, 165, 222)
+        : i == hoveredIndex
+          ? color(180, 215, 255)
+          : 255
+    );
+    
+    // highlight CAPS state
     if (i == capsIndex && capsOn) {
       stroke(0, 100, 200);
       strokeWeight(3);
@@ -120,13 +134,12 @@ void draw() {
       stroke(80);
       strokeWeight(1);
     }
-    rect(p.x - w/2, p.y - h/2, w, h, 6);
+    rect(p.x - wScaled/2, p.y - hScaled/2, wScaled, hScaled, 6);
 
+    // draw label
     fill(0);
     String lbl = labels[i];
-    if (lbl.length() == 1 && !capsOn){
-      lbl = lbl.toLowerCase();
-    } 
+    if (lbl.length() == 1 && !capsOn) lbl = lbl.toLowerCase();
     text(lbl, p.x, p.y);
   }
 }
@@ -145,6 +158,7 @@ int findNearest(float x, float y) {
 }
 
 void mousePressed() {
+  clickedIndex = hoveredIndex;
   if (hoveredIndex < 0) return;
   String key = labels[hoveredIndex];
   if (hoveredIndex == capsIndex) {
@@ -156,4 +170,8 @@ void mousePressed() {
   } else {
     buffer.append(capsOn ? key : key.toLowerCase());
   }
+}
+
+void mouseReleased() {
+  clickedIndex = -1;
 }
