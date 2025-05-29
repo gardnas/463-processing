@@ -4,6 +4,29 @@ String[][] layout = {
   {"Z","X","C","V","B","N","M"}
 };
 
+String[] sentences = {
+  "She packed twelve blue pens in her small bag",
+  "Every bird sang sweet songs in the quiet dawn",
+  "They watched clouds drift across the golden sky",
+  "A clever mouse slipped past the sleepy cat",
+  "Green leaves danced gently in the warm breeze",
+  "He quickly wrote notes before the test began",
+  "The tall man wore boots made of soft leather",
+  "Old clocks ticked loudly in the silent room",
+  "She smiled while sipping tea on the front porch",
+  "We found a hidden path behind the old barn",
+  "Sunlight streamed through cracks in the ceiling",
+  "Dogs barked at shadows moving through the yard",
+  "Rain tapped softly against the window glass",
+  "Bright stars twinkled above the quiet valley",
+  "He tied the package with ribbon and string",
+  "A sudden breeze blew papers off the desk",
+  "The curious child opened every single drawer",
+  "Fresh apples fell from the heavy tree limbs",
+  "The artist painted scenes from her memory",
+  "They danced all night under the glowing moon",
+};
+
 int rows = layout.length;
 int extraKeys = 3; // CAPS, SPACE, ENTER
 
@@ -21,6 +44,17 @@ boolean capsOn = false;
 int blinkPeriod = 30;
 float hoverScale = 1.1;
 float clickScale = 0.9;
+
+// timer varibales
+int curTrial = 0;
+boolean isTimeRunning = false;
+int startTime = 0;
+int ellapseTime = 0;
+
+
+// writer
+
+PrintWriter out;
 
 void setup() {
   size(1000, 600);
@@ -57,6 +91,10 @@ void setup() {
 
   labels = labelList.toArray(new String[0]);
   positions = posList.toArray(new PVector[0]);
+
+
+  //writer 
+  out = createWriter("testing.csv");
 }
 
 void draw() {
@@ -70,7 +108,7 @@ void draw() {
   fill(0);
   textSize(18);
   textAlign(LEFT, CENTER);
-  text("the quick fox jumps over the lazy dog", 60, 40);
+  text(sentences[curTrial], 60, 40);
 
   // input box
   fill(255);
@@ -110,6 +148,14 @@ void draw() {
     if (dl.length()==1 && !capsOn) dl = dl.toLowerCase();
     text(dl, p.x, p.y);
   }
+
+  textSize(16);
+  textAlign(RIGHT, TOP);
+  if (isTimeRunning) {
+    ellapseTime = millis() - startTime;
+  }
+  
+  text(ellapseTime / 1000, width - 60, 30);
 }
 
 int findNearest(float x, float y) {
@@ -125,13 +171,40 @@ void mousePressed() {
   clickedIndex = hoveredIndex;
   if (hoveredIndex<0) return;
   String key = labels[hoveredIndex];
+
+  if (!isTimeRunning && !key.equals("ENTER")) {
+    startTime = millis();
+    isTimeRunning = true;
+  }
+
+  if (isTimeRunning && key.equals("ENTER")) {
+    startTime = 0;
+    isTimeRunning = false;
+  }
+
   if (hoveredIndex==capsIndex) capsOn=!capsOn;
   else if (key.equals("SPACE")) buffer.append(' ');
   else if (key.equals("DEL")) { if(buffer.length()>0) buffer.deleteCharAt(buffer.length()-1); }
-  else if (key.equals("ENTER")) buffer.setLength(0);
-  else buffer.append(capsOn?key:key.toLowerCase());
+  else if (key.equals("ENTER")) {
+    saveResultToFile();
+    buffer.setLength(0);
+    if (curTrial == sentences.length) {
+      curTrial = 0;
+    } else {
+      curTrial++;
+    }
+  } else {
+    buffer.append(capsOn?key:key.toLowerCase());
+    saveResultToFile();
+  }
 }
 
 void mouseReleased() {
   clickedIndex = -1;
+}
+
+void saveResultToFile() {
+  String row = ellapseTime + "," + buffer.toString() + "," + sentences[curTrial];
+  out.println(row);
+  out.flush();
 }
