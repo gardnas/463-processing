@@ -4,7 +4,7 @@ String[][] layout = {
   {"Z","X","C","V","B","N","M"}
 };
 
-String[] senteces = {
+String[] sentences = {
   "She packed twelve blue pens in her small bag",
   "Every bird sang sweet songs in the quiet dawn",
   "They watched clouds drift across the golden sky",
@@ -94,7 +94,7 @@ void setup() {
 
 
   //writer 
-  out = createWriter("testing.txt");
+  out = createWriter("testing.csv");
 }
 
 void draw() {
@@ -108,7 +108,7 @@ void draw() {
   fill(0);
   textSize(18);
   textAlign(LEFT, CENTER);
-  text(senteces[curTrial], 60, 40);
+  text(sentences[curTrial], 60, 40);
 
   // input box
   fill(255);
@@ -188,7 +188,11 @@ void mousePressed() {
   else if (key.equals("ENTER")) {
     saveResultToFile();
     buffer.setLength(0);
-    curTrial++;
+    if (curTrial == sentences.length) {
+      curTrial = 0;
+    } else {
+      curTrial++;
+    }
   } else {
     buffer.append(capsOn?key:key.toLowerCase());
     saveResultToFile();
@@ -200,7 +204,7 @@ void mouseReleased() {
 }
 
 void saveResultToFile() {
-  String row = ellapseTime + "," + buffer.toString() + "," + senteces[curTrial];
+  String row = ellapseTime + "," + buffer.toString() + "," + sentences[curTrial];
   out.println(row);
   out.flush();
 }
