@@ -177,11 +177,6 @@ void mousePressed() {
     isTimeRunning = true;
   }
 
-  if (isTimeRunning && key.equals("ENTER")) {
-    startTime = 0;
-    isTimeRunning = false;
-  }
-
   if (hoveredIndex==capsIndex) capsOn=!capsOn;
   else if (key.equals("SPACE")) buffer.append(' ');
   else if (key.equals("DEL")) { if(buffer.length()>0) buffer.deleteCharAt(buffer.length()-1); }
@@ -193,6 +188,13 @@ void mousePressed() {
     } else {
       curTrial++;
     }
+
+    if(isTimeRunning) {
+      startTime = 0;
+      isTimeRunning = false;
+      ellapseTime = 0;
+    }
+
   } else {
     buffer.append(capsOn?key:key.toLowerCase());
     saveResultToFile();
