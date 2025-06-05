@@ -42,9 +42,13 @@ def analyze_csv(file_path):
 
 def main():
     # add more files here later!
-    for csv_file in ["testing1.csv", "testing2.csv", "testing3.csv"]:
+    for csv_file in ["p1.csv", "p2.csv", "p3.csv", "p4.csv", "p5.csv", "p6.csv", "p7.csv", "p8.csv", "p9.csv", "p10.csv", "p11.csv", "p12(prof-williams).csv"]:
         file_path = f"{csv_file}"
         analyze_csv(file_path)
 
 if __name__ == "__main__":
     main()
+
+# for the 20 trials:
+#The average wpm for p9.csv was 11.07 with MSD of 0.
+#The average wpm for p12(prof-williams).csv was 11.7 with a MSD of 1.
